@@ -39,6 +39,10 @@ RUN mkdir -p src && echo 'fn main(){}' > src/main.rs \
 # ── Sources réelles ───────────────────────────────────────────────────────────
 COPY src        ./src
 
+# Fichiers embarqués à la compilation via include_str! (voir src/exploits.rs)
+# → sans eux, `cargo build` échoue (exit 101) dans l'image mais pas sur le runner
+COPY exploits.yaml ./exploits.yaml
+
 # ── Compilation finale + strip ────────────────────────────────────────────────
 RUN cargo build --release \
     && strip /build/target/release/nrtg \
