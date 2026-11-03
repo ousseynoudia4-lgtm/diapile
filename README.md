@@ -213,7 +213,7 @@ cargo run --release -- \
 
 ### Principe
 
-L'agent IA pilote le cycle complet d'une opération offensive. Le LLM (OpenRouter) planifie la kill-chain, demande confirmation avant toute action HIGH/CRITICAL, et retient tout en mémoire persistante pour reprendre après interruption.
+L'agent IA pilote le cycle complet d'une opération offensive. Le LLM planifie la kill-chain, demande confirmation avant toute action HIGH/CRITICAL, et retient tout en mémoire persistante pour reprendre après interruption.
 
 ```
 Recon scan → Plan LLM → Confirmation humaine → Exécution → Mémoire → Rapport
