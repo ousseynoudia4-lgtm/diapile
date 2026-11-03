@@ -1,5 +1,4 @@
-//! Simulation de charge Red Team (personas bots, tables statiques constantes).
-// Chaque `unwrap()` de ce module porte sur une table **constante non vide**
+
 // (`choose()`/`last()`) ou un invariant local : on autorise le lint au niveau du
 // module pour ne pas noyer le signal ailleurs dans le crate.
 #![allow(clippy::unwrap_used)]
