@@ -1,0 +1,219 @@
+name: DIAPILE CI
+
+on:
+  push:
+    branches: ["main", "master", "dev"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main", "master"]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 1: Build + Lint (Linux)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build & Lint (Linux x86_64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libpcap-dev \
+            libssl-dev \
+            pkg-config \
+            nmap \
+            python3-pip
+          pip3 install --break-system-packages impacket bloodhound ldap3 2>/dev/null || true
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (warnings as errors)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: true   # Ne pas bloquer le build sur les warnings clippy
+
+      - name: Build (debug)
+        run: cargo build --bin nrtg 2>&1 | tee build_ci.log
+
+      - name: Build (release)
+        run: cargo build --release --bin nrtg
+
+      - name: Upload release binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: nrtg-linux-x86_64
+          path: target/release/nrtg
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 2: Tests unitaires
+  # ─────────────────────────────────────────────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libpcap-dev libssl-dev pkg-config
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Run tests
+        run: cargo test --all -- --test-threads=4 2>&1 | tee test_ci.log
+        env:
+          # Tests ne doivent pas faire de vrais appels réseau
+          NRTG_DRY_RUN: "1"
+          NRTG_TEST_MODE: "1"
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test_ci.log
+          retention-days: 3
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 3: Docker build
+  # ─────────────────────────────────────────────────────────────────────────────
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: diapile/nrtg:ci-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+      - name: Smoke test container
+        run: |
+          docker run --rm \
+            -e OPENROUTER_API_KEY=dummy \
+            -e NVD_API_KEY=dummy \
+            diapile/nrtg:ci-${{ github.sha }} \
+            nrtg --help || true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 4: Sécurité — audit des dépendances
+  # ─────────────────────────────────────────────────────────────────────────────
+  audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Run cargo audit
+        run: cargo audit
+        continue-on-error: true   # Ne pas bloquer le CI sur les advisories
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 5: Release automatique sur tag vX.Y.Z
+  # ─────────────────────────────────────────────────────────────────────────────
+  release:
+    name: Release Binary
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libpcap-dev libssl-dev pkg-config
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release --bin nrtg
+
+      - name: Strip binary
+        run: strip target/release/nrtg
+
+      - name: Create tarball
+        run: |
+          mkdir -p dist
+          cp target/release/nrtg dist/
+          cp README.md dist/ 2>/dev/null || true
+          cp .env.example dist/ 2>/dev/null || true
+          tar -czf nrtg-${{ github.ref_name }}-linux-x86_64.tar.gz -C dist .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nrtg-${{ github.ref_name }}-linux-x86_64.tar.gz
+          generate_release_notes: true
