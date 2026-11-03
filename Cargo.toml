@@ -9,9 +9,8 @@ readme      = "README.md"
 rust-version = "1.74"
 keywords    = ["security", "redteam", "network", "scanner", "ai"]
 categories  = ["command-line-utilities", "network-programming"]
-# À compléter une fois le dépôt créé sur GitHub (renseigner ton URL exacte) :
-# repository = "https://github.com/<user>/<repo>"
-# homepage   = "https://github.com/<user>/<repo>"
+repository  = "https://github.com/ousseynoudia4-lgtm/diapile"
+homepage    = "https://github.com/ousseynoudia4-lgtm/diapile"
 
 [[bin]]
 name = "nrtg"
