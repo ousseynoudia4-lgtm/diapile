@@ -1,0 +1,49 @@
+# ── Build artifacts ──────────────────────────────────────────
+target/
+*.log
+*.txt
+build_*.log
+check_*.log
+check_*.txt
+CACHEDIR.TAG
+.rustc_info.json
+
+# ── Outputs ──────────────────────────────────────────────────
+out/
+sessions/
+graph.json
+graph.csv
+graph.md
+graph.*.json
+gateway_scan.*
+
+# ── Dev / OS ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+
+# ── Git ──────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── Secrets ──────────────────────────────────────────────────
+.env
+
+# ── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Fichiers de build Windows locaux ─────────────────────────
+tools/
+do_build.bat
+fix_libs.ps1
+install.ps1
+banner_test.txt
+build_errors.txt
+build_release.txt
+cargo_errors.txt
+cve_base/

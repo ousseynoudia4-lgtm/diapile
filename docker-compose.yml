@@ -1,0 +1,58 @@
+# ================================================================
+# DIAPILE — Lab de simulation local (tests du scanner / bruteforce)
+#
+# ⚠️  Cibles VOLONTAIREMENT non durcies, à usage de test LOCAL uniquement.
+#     Ne remplace jamais une autorisation écrite sur une cible réelle.
+#
+# Usage :
+#   make up        # démarre le lab
+#   make scan      # scanne les ports exposés ci-dessous
+#   make down      # arrête le lab
+#
+# Ports exposés (cf. LAB_TARGETS dans le Makefile) :
+#   8080  nginx    · 6379 redis · 2222 ssh · 1025 smtp · 21 ftp
+# ================================================================
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nrtg-lab-nginx
+    ports:
+      - "8080:80"
+
+  redis:
+    image: redis:alpine
+    container_name: nrtg-lab-redis
+    ports:
+      - "6379:6379"
+
+  ssh:
+    image: linuxserver/openssh-server:latest
+    container_name: nrtg-lab-ssh
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - USER_NAME=redteam
+      - USER_PASSWORD=redteam
+      - PASSWORD_ACCESS=true
+    ports:
+      - "2222:2222"
+
+  smtp:
+    image: axllent/mailpit:latest
+    container_name: nrtg-lab-smtp
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # UI web
+
+  ftp:
+    image: fauria/vsftpd:latest
+    container_name: nrtg-lab-ftp
+    environment:
+      - FTP_USER=redteam
+      - FTP_PASS=redteam
+      - PASV_ADDRESS=127.0.0.1
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"

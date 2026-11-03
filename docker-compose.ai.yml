@@ -1,0 +1,42 @@
+# ================================================================
+# DIAPILE — Extension IA via OpenRouter
+#
+# Usage :
+#   docker run --rm -v "${PWD}/out:/app/out" \
+#     -e OPENROUTER_API_KEY=sk-or-v1-... \
+#     nrtg -t 192.168.1.0/24:80 \
+#     --ai-report --llm-provider openrouter \
+#     --llm-model mistralai/mistral-7b-instruct:free
+#
+# Ou via compose :
+#   docker compose -f docker-compose.ai.yml run --rm nrtg
+# ================================================================
+version: "3.9"
+
+services:
+  nrtg:
+    image: nrtg:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openrouter}
+      - LLM_MODEL=${LLM_MODEL:-mistralai/mistral-7b-instruct:free}
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - ./out:/app/out
+      - ./sessions:/app/sessions
+    # Accès au réseau hôte pour scanner (Linux)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      -t ${TARGETS}
+      --tcp-timeout 5
+      --http-timeout 8
+      --output /app/out/graph.json
+      --csv --md --export-api-report
+      --ai-report --ai-targets 10
+      --llm-provider ${LLM_PROVIDER:-openrouter}
+      --llm-model ${LLM_MODEL:-mistralai/mistral-7b-instruct:free}
+      --parallel 20

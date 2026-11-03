@@ -1,0 +1,31 @@
+{
+  "_comment": "Configuration réseau redteam_grapher (nrtg). Tous les champs sont SURCHARGEABLES via la CLI : --targets, --output, --http-timeout, etc.",
+  "targets": [],
+  "options": {
+    "http_timeout": 8,
+    "tcp_timeout": 5,
+    "cve_db_path": "cve_db.json",
+    "risk_rules_path": "risk_rules.json",
+    "output_file": "graph.json",
+    "exploits_config": "exploits.yaml",
+    "flows_file": [],
+    "csv_report": true,
+    "md_report": true,
+    "export_api_report": true,
+    "run_exploits": true,
+    "exploit_depth": "medium",
+    "ai_report": true,
+    "ai_targets": 10,
+    "llm_provider": "openrouter",
+    "llm_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "_llm_model_note": "OpenRouter 2026/09: TOUS les modèles :free sont RETIRÉS (gemma-3-4b-it, mistral-7b-instruct, llama-3.1-8b-instruct:free → 404). Utiliser version payante ci-dessus ou Ollama local.",
+    "_llm_api_key_env_note": "Nom de la variable d'environnement contenant la clé API (PAS la clé elle-même). La clé doit vivre dans .env (ignoré par git), jamais dans config.json.",
+    "llm_api_key_env": "OPENROUTER_API_KEY",
+    "capture_iface": null,
+    "capture_duration": 30,
+    "capture_output": "capture.json",
+    "capture_max_flows": 10000,
+    "log_level": "info",
+    "log_format": "compact"
+  }
+}

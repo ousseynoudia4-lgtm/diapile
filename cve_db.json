@@ -1,0 +1,80 @@
+{
+  "_comment": "CVE Database - Local knowledge base of known vulnerabilities. Format: product -> [ {affected_versions, cve, severity (CVSS v3 0-10), desc, vector?} ]",
+  "nginx": [
+    {"affected_versions": ["1.14.0", "1.14.1", "1.14.2"], "cve": "CVE-2018-16843", "severity": 7.5, "desc": "HTTP/2 DoS via memory exhaustion (MEMORYCORRUPTION in nghttp2)", "vector": "NETWORK"},
+    {"affected_versions": ["1.14.0", "1.14.1"], "cve": "CVE-2019-9521", "severity": 6.5, "desc": "HTTP request smuggling via transfer-encoding header", "vector": "NETWORK"},
+    {"affected_versions": ["1.13.0", "1.13.1", "1.13.2", "1.13.3", "1.13.4", "1.13.5", "1.13.6", "1.13.7", "1.13.8", "1.13.9", "1.13.10", "1.13.11", "1.13.12"], "cve": "CVE-2017-7529", "severity": 7.5, "desc": "Integer overflow in range filter leads to information disclosure", "vector": "NETWORK"}
+  ],
+  "apache": [
+    {"affected_versions": ["2.4.29", "2.4.28", "2.4.27"], "cve": "CVE-2017-15710", "severity": 7.5, "desc": "Range header DoS vulnerability (memory exhaustion)", "vector": "NETWORK"},
+    {"affected_versions": ["2.4.29"], "cve": "CVE-2017-15715", "severity": 6.8, "desc": "Truncation of files with AllowOverride All (files with <NEWLINE> bypass upload)", "vector": "NETWORK"},
+    {"affected_versions": ["2.4.25", "2.4.26", "2.4.27", "2.4.28", "2.4.29"], "cve": "CVE-2018-1312", "severity": 6.8, "desc": "Weak Digest Auth nonce generation allows replay attacks", "vector": "NETWORK"}
+  ],
+  "redis": [
+    {"affected_versions": ["5.0.0", "5.0.1", "5.0.2", "5.0.3", "5.0.4"], "cve": "CVE-2020-1751", "severity": 8.0, "desc": "Authenticated RCE via Lua CJSON library (heap overflow)", "vector": "NETWORK"},
+    {"affected_versions": ["4.0.0", "4.0.1", "4.0.2", "4.0.10", "4.0.11", "4.0.12", "4.0.13", "4.0.14"], "cve": "CVE-2022-35951", "severity": 9.8, "desc": "Integer overflow in ziplist -> heap overflow RCE", "vector": "NETWORK"},
+    {"affected_versions": ["5.0.0", "5.0.1", "5.0.2", "5.0.3", "5.0.4", "5.0.5", "5.0.6", "5.0.7", "5.0.8", "5.0.9", "5.0.10"], "cve": "CVE-2023-28425", "severity": 7.5, "desc": "MSETNX with huge key count leads to DoS via assertion crash", "vector": "NETWORK"}
+  ],
+  "vsftpd": [
+    {"affected_versions": ["2.3.4"], "cve": "CVE-2011-2465", "severity": 9.3, "desc": "Deliberate backdoor in vsftpd-2.3.4.tar.gz - open shell on port 6200 :)", "vector": "NETWORK"},
+    {"affected_versions": ["2.0.0", "2.0.1", "2.0.2", "2.0.3", "2.0.4", "2.0.5", "2.0.6", "2.0.7", "2.3.0", "2.3.2", "2.3.3", "2.3.4"], "cve": "CVE-2015-1419", "severity": 5.0, "desc": "Remote DoS via certain ftp commands (memory leak)", "vector": "NETWORK"}
+  ],
+  "postfix": [
+    {"affected_versions": ["2.11.0", "2.11.1", "2.11.2", "2.11.3"], "cve": "CVE-2015-3449", "severity": 7.0, "desc": "OpenSSL key recovery attack (DROWN-like) when exporting keys", "vector": "NETWORK"}
+  ],
+  "exim": [
+    {"affected_versions": "4.84.0,4.84.1,4.84.2", "cve": "CVE-2019-10149", "severity": 8.8, "desc": "Local/Remote command injection in Exim transport (The Return of the WIZard)", "vector": "NETWORK"},
+    {"affected_versions": "4.85,4.86,4.87,4.88,4.89,4.90,4.91", "cve": "CVE-2020-28017", "severity": 9.8, "desc": "Remote unauthenticated RCE chain (21Nails - heap-based overflow in spool)", "vector": "NETWORK"}
+  ],
+  "openssh": [
+    {"affected_versions": ["7.2", "7.2.1", "7.2.2"], "cve": "CVE-2016-0777", "severity": 6.9, "desc": "Roaming feature information leak - private key bits leak", "vector": "NETWORK"},
+    {"affected_versions": ["6.7", "6.7.1"], "cve": "CVE-2016-0778", "severity": 5.5, "desc": "Out-of-bounds read in ssh-keyscan", "vector": "NETWORK"},
+    {"affected_versions": ["7.4", "7.4.1", "7.5", "7.6", "7.7", "7.8", "7.9"], "cve": "CVE-2018-20685", "severity": 6.0, "desc": "RCE in scp - server side controls client-side execution (SCP protocol issue)", "vector": "NETWORK"}
+  ],
+  "mysql": [
+    {"affected_versions": ["5.1.0", "5.1.73"], "cve": "CVE-2016-6662", "severity": 9.0, "desc": "Critical MySQL Remote Root Code Execution / Privesc (malloc-based glibc poisoning)", "vector": "NETWORK"},
+    {"affected_versions": ["5.5.0", "5.5.51"], "cve": "CVE-2016-6663", "severity": 7.2, "desc": "Privilege Escalation / Race condition to root (exploit chain via MySQL root)", "vector": "LOCAL"}
+  ],
+  "postgresql": [
+    {"affected_versions": ["9.3.0", "9.3.15", "9.4.0", "9.4.10", "9.5.0", "9.5.5"], "cve": "CVE-2017-7546", "severity": 8.0, "desc": "Password hash login bypass with empty password - empty password accepted", "vector": "NETWORK"},
+    {"affected_versions": ["9.3.0", "9.3.24", "9.4.0", "9.4.19", "9.5.0", "9.5.14", "9.6.0", "9.6.10"], "cve": "CVE-2018-16850", "severity": 8.0, "desc": "pg_dump RCE via SELECT with libpq RowDescription overflow", "vector": "NETWORK"}
+  ],
+  "mongodb": [
+    {"affected_versions": ["2.6.0", "2.6.1", "2.6.2", "2.6.3", "2.6.4", "2.6.5", "2.6.6", "2.6.7", "2.6.8", "2.6.9", "2.6.10", "2.6.11", "2.6.12"], "cve": "CVE-2015-7882", "severity": 9.8, "desc": "Default NoAuth bind 0.0.0.0 in MongoDB - remote unauthenticated full DB access", "vector": "NETWORK"},
+    {"affected_versions": ["3.0.0", "3.0.14", "3.2.0", "3.2.21"], "cve": "CVE-2017-15545", "severity": 8.0, "desc": "SSRF via JavaScript scope in MapReduce", "vector": "NETWORK"}
+  ],
+  "mssql": [
+    {"affected_versions": ["2000", "2000.1", "2000.2", "2000.3", "2000.4"], "cve": "CVE-2002-0649", "severity": 10.0, "desc": "SQL Server 2000 Resolution Service buffer overflow (SQL Slammer worm)", "vector": "NETWORK"},
+    {"affected_versions": ["2005", "2005.1", "2005.2", "2005.3", "2005.4", "2005.5"], "cve": "CVE-2008-4270", "severity": 9.3, "desc": "SQL Server 2005 Remote Code Execution via Extended Stored Procedures (heap overflow)", "vector": "NETWORK"},
+    {"affected_versions": ["2008", "2008.1", "2008.2", "2008.3"], "cve": "CVE-2019-10683", "severity": 8.5, "desc": "Extended Stored Procedures heap use-after-free", "vector": "NETWORK"}
+  ],
+  "telnet": [
+    {"affected_versions": ["*"], "cve": "CVE-1999-0000-TELNET", "severity": 9.8, "desc": "Telnet transmits credentials in cleartext - use SSH instead", "vector": "NETWORK"}
+  ],
+  "bind": [
+    {"affected_versions": ["9.8.0", "9.8.1", "9.8.2", "9.8.3", "9.8.4", "9.8.5", "9.8.6", "9.8.7", "9.8.8"], "cve": "CVE-2015-5477", "severity": 7.8, "desc": "TKEY query DoS crash - assert failure in resolver", "vector": "NETWORK"}
+  ],
+  "drupal": [
+    {"affected_versions": ["7", "8"], "cve": "CVE-2018-7600", "severity": 9.8, "desc": "Drupalgeddon2 - unauthenticated remote code execution via Form API", "vector": "NETWORK"},
+    {"affected_versions": ["7", "8"], "cve": "CVE-2019-6340", "severity": 8.1, "desc": "REST services remote code execution (Drupalgeddon3)", "vector": "NETWORK"},
+    {"affected_versions": ["8", "9"], "cve": "CVE-2020-13671", "severity": 8.8, "desc": "Arbitrary PHP code execution via crafted file upload", "vector": "NETWORK"},
+    {"affected_versions": ["9", "10"], "cve": "CVE-2023-31250", "severity": 6.5, "desc": "SA-CORE-2023-005 access bypass (unsafe link submit callback)", "vector": "NETWORK"}
+  ],
+  "apache": [
+    {"affected_versions": ["2.4.49"], "cve": "CVE-2021-41773", "severity": 7.5, "desc": "Path traversal to RCE via misconfigured mod_cgi (2.4.49)", "vector": "NETWORK"},
+    {"affected_versions": ["2.4.49", "2.4.50"], "cve": "CVE-2021-42013", "severity": 9.8, "desc": "Path traversal bypass of CVE-2021-41773 (2.4.49/2.4.50)", "vector": "NETWORK"},
+    {"affected_versions": ["2.4"], "cve": "CVE-2017-15715", "severity": 8.1, "desc": "Newline injection in .htaccess allowing file upload RCE under CGI", "vector": "NETWORK"},
+    {"affected_versions": ["2.4.17", "2.4.18", "2.4.19", "2.4.20", "2.4.21", "2.4.22", "2.4.23", "2.4.24", "2.4.25", "2.4.26", "2.4.27", "2.4.28", "2.4.29", "2.4.30", "2.4.31", "2.4.32", "2.4.33", "2.4.34", "2.4.35", "2.4.36", "2.4.37", "2.4.38"], "cve": "CVE-2019-0211", "severity": 8.8, "desc": "Root privilege escalation via mod_prefork/apache2ctl race", "vector": "LOCAL"}
+  ],
+  "php": [
+    {"affected_versions": ["7.1", "7.2", "7.3"], "cve": "CVE-2019-11043", "severity": 7.5, "desc": "PHP-FPM env_path_info parsing RCE (PHPMailer-style query string)", "vector": "NETWORK"},
+    {"affected_versions": ["5.2", "5.3"], "cve": "CVE-2012-1823", "severity": 9.8, "desc": "php-cgi query string RCE - arbitrary code execution as web user", "vector": "NETWORK"},
+    {"affected_versions": [">=8.2,<8.2.35", ">=8.3,<8.3.36", ">=8.4,<8.4.27", ">=8.5,<8.5.12"], "cve": "CVE-2026-109618", "severity": 9.2, "desc": "PHP2Shell - unauth RCE via memory_limit exhaustion / OOM corruption in the PHP core Zend engine (exploited in the wild since 2026-10-17). Fixed in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35.", "vector": "NETWORK", "kev": true, "exploit_public": true},
+    {"affected_versions": [">=8.2,<8.2.35", ">=8.3,<8.3.36", ">=8.4,<8.4.27", ">=8.5,<8.5.12"], "cve": "CVE-2026-109619", "severity": 9.2, "desc": "PHP2Shell - unauth RCE via stale request state reuse after a failed OOM allocation (companion vector to CVE-2026-109618). Fixed in 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35.", "vector": "NETWORK", "kev": true, "exploit_public": true}
+  ],
+  "wordpress": [
+    {"affected_versions": ["5.6", "5.7"], "cve": "CVE-2021-29447", "severity": 5.3, "desc": "Media library XXE via WAVE file upload (server-side request disclosure)", "vector": "NETWORK"},
+    {"affected_versions": ["5.0"], "cve": "CVE-2019-8942", "severity": 7.5, "desc": "Remote code execution via post meta edit & theme editor path traversal", "vector": "NETWORK"},
+    {"affected_versions": ["5", "5.1", "5.2", "5.3", "5.4", "5.5"], "cve": "CVE-2019-9787", "severity": 4.3, "desc": "CSRF in post-by-email so users can be forced to expose unpublished posts", "vector": "NETWORK"}
+  ]
+}

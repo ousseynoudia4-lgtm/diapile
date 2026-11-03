@@ -1,0 +1,42 @@
+# ================================================================
+# NRTG / DIAPILE — .cargo/config.toml
+#
+# Pas de `target` global ici — chaque OS utilise son propre linker.
+#
+# Windows : passer le target manuellement :
+#   $env:PATH = "C:\...\llvm-mingw\bin;" + $env:PATH
+#   cargo build -j2 --target x86_64-pc-windows-gnu
+#
+# Linux/macOS/Docker : cargo build --release (aucune config requise)
+# ================================================================
+
+# ── Windows GNU (llvm-mingw) ──────────────────────────────────────────────────
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+rustflags = [
+    "-C", "link-self-contained=no",
+]
+
+# ── Windows MSVC (si VS Build Tools installé) ─────────────────────────────────
+[target.x86_64-pc-windows-msvc]
+# Rien de spécial — link.exe natif
+
+# ── Linux x86_64 ──────────────────────────────────────────────────────────────
+[target.x86_64-unknown-linux-gnu]
+# Rien de spécial — gcc/cc système
+
+# ── Linux ARM64 (Raspberry Pi, serveurs ARM, Docker arm64) ────────────────────
+[target.aarch64-unknown-linux-gnu]
+# Cross-compilation si nécessaire
+
+# ── macOS Apple Silicon (M1/M2/M3) ────────────────────────────────────────────
+[target.aarch64-apple-darwin]
+# Rien de spécial — clang Apple natif
+
+# ── macOS Intel ───────────────────────────────────────────────────────────────
+[target.x86_64-apple-darwin]
+# Rien de spécial
+
+# ── Linux musl (binaire statique portable) ────────────────────────────────────
+[target.x86_64-unknown-linux-musl]
+rustflags = ["-C", "target-feature=+crt-static"]

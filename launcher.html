@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DIAPILE — Network Redteam Grapher // LAUNCHER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================
+   PALETTE CYBER-HUD
+   ========================================================== */
+:root {
+  --bg-0: #02030a;
+  --bg-1: #050914;
+  --bg-2: #0a1124;
+  --matrix: #00ff9c;
+  --matrix-dim: #00b372;
+  --cyan: #38e1ff;
+  --violet: #a36bff;
+  --amber: #ffb838;
+  --red: #ff4c6a;
+  --blue: #5bb0ff;
+  --text: #d7fff1;
+  --text-dim: #6fa394;
+  --panel: rgba(8, 24, 34, 0.65);
+  --panel-line: rgba(0, 255, 156, 0.25);
+  --panel-glow: 0 0 24px rgba(0,255,156,0.12), inset 0 0 40px rgba(0, 255, 156, 0.05);
+  --mono: 'JetBrains Mono', 'Share Tech Mono', monospace;
+  --crt: 'VT323', 'Share Tech Mono', monospace;
+  --radius: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+
+body {
+  font-family: var(--mono);
+  color: var(--text);
+  background: var(--bg-0);
+  overflow-x: hidden;
+  position: relative;
+  padding-bottom: 60px;
+}
+
+/* ---------- BACKGROUND : grille + aurora ---------- */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 15% 10%, rgba(0,255,156,0.12), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 90%, rgba(56,225,255,0.10), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(163,107,255,0.08), transparent 70%);
+  filter: saturate(1.3);
+  z-index: -3;
+}
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,156,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,156,0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 85%);
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* ---------- MATRIX RAIN canvas ---------- */
+#matrix {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* ---------- SCANLINES CRT ---------- */
+.crt::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.0) 0px,
+    rgba(0,0,0,0.0) 2px,
+    rgba(0,0,0,0.18) 3px,
+    rgba(0,0,0,0.0) 4px
+  );
+  z-index: 9998;
+  mix-blend-mode: multiply;
+  animation: flicker 6s infinite steps(60);
+}
+.crt::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%);
+  z-index: 9999;
+}
+@keyframes flicker {
+  0%,97%,100% { opacity: 1; }
+  98% { opacity: 0.85; }
+  99% { opacity: 0.95; }
+}
+
+/* ---------- HEADER DIAPILE ---------- */
+header.banner {
+  text-align: center;
+  padding: 38px 16px 14px;
+  position: relative;
+}
+
+/* Démon SVG flottant */
+.diapile-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.demon-wrap {
+  width: 110px;
+  height: 110px;
+  animation: demonFloat 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(255, 80, 0, 0.7));
+}
+.demon-svg {
+  width: 100%;
+  height: 100%;
+  animation: hornPulse 3s ease-in-out infinite alternate;
+}
+@keyframes demonFloat {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-8px) rotate(1deg); }
+}
+@keyframes hornPulse {
+  from { filter: drop-shadow(0 0 6px #ff4400) brightness(1); }
+  to   { filter: drop-shadow(0 0 22px #ff8800) brightness(1.25); }
+}
+
+/* Nom DIAPILE lettres feu */
+.diapile-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+  animation: fireName 2.5s ease-in-out infinite alternate;
+}
+.d-letter {
+  display: inline-block;
+  transition: transform 0.3s;
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 30px rgba(255, 100, 0, 0.5);
+}
+.d-letter:hover { transform: translateY(-4px) scale(1.15); }
+@keyframes fireName {
+  from { filter: brightness(1) drop-shadow(0 0 4px #ff4400); }
+  to   { filter: brightness(1.2) drop-shadow(0 0 16px #ff8800); }
+}
+
+.diapile-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #cc5500;
+  margin-top: 2px;
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+.subtitle .cursor {
+  display: inline-block; width: 9px; height: 14px;
+  background: #ff6b1a;
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: blink 1s steps(2) infinite;
+  box-shadow: 0 0 8px var(--matrix);
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.ticker {
+  margin: 18px auto 0;
+  max-width: 1100px;
+  padding: 8px 14px;
+  border: 1px solid var(--panel-line);
+  background: rgba(0,0,0,0.35);
+  color: var(--cyan);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  border-radius: var(--radius);
+  box-shadow: var(--panel-glow);
+  overflow: hidden;
+  position: relative;
+}
+.ticker-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 28s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.ticker .sep { color: var(--violet); margin: 0 14px; }
+.ticker .tag { color: var(--amber); }
+.ticker .ok  { color: var(--matrix); }
+
+/* ==========================================================
+   LAYOUT 2 COLONNES
+   ========================================================== */
+.launcher-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 20px;
+  max-width: 1400px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+@media (max-width: 980px) { .launcher-grid { grid-template-columns: 1fr; padding: 0 14px; } }
+
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius);
+  padding: 18px 20px 22px;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--panel-glow);
+  overflow: hidden;
+}
+.panel::before, .panel::after {
+  content: "";
+  position: absolute;
+  width: 18px; height: 18px;
+  border: 1px solid var(--matrix);
+  opacity: 0.65;
+}
+.panel::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.panel::after  { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(0,255,156,0.25);
+}
+.panel-title h2 {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  color: var(--matrix);
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(0,255,156,0.4);
+}
+.panel-title h2::before { content: "▸ "; color: var(--amber); }
+.panel-title .chip {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 3px 8px;
+  border: 1px solid var(--panel-line);
+  color: var(--cyan);
+  background: rgba(56,225,255,0.06);
+  border-radius: 3px;
+}
+
+/* ==========================================================
+   CIBLES
+   ========================================================== */
+.targets-textarea {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  background: rgba(0,0,0,0.5);
+  color: var(--text);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.targets-textarea:focus {
+  border-color: var(--matrix);
+  box-shadow: 0 0 0 2px rgba(0,255,156,0.15);
+}
+.targets-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+.targets-hint code {
+  color: var(--cyan);
+  border: 1px solid rgba(56,225,255,0.3);
+  padding: 0 6px;
+  border-radius: 3px;
+  background: rgba(56,225,255,0.06);
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.chip-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--matrix);
+  background: rgba(0,255,156,0.06);
+  border: 1px solid rgba(0,255,156,0.35);
+  padding: 6px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chip-btn:hover {
+  background: rgba(0,255,156,0.16);
+  box-shadow: 0 0 10px rgba(0,255,156,0.3);
+  transform: translateY(-1px);
+}
+.chip-btn.amber  { color: var(--amber); border-color: rgba(255,184,56,0.4); background: rgba(255,184,56,0.06); }
+.chip-btn.amber:hover { background: rgba(255,184,56,0.16); box-shadow: 0 0 10px rgba(255,184,56,0.3); }
+.chip-btn.cyan   { color: var(--cyan);  border-color: rgba(56,225,255,0.4);  background: rgba(56,225,255,0.06); }
+.chip-btn.cyan:hover  { background: rgba(56,225,255,0.16);  box-shadow: 0 0 10px rgba(56,225,255,0.3); }
+.chip-btn.violet { color: var(--violet);border-color: rgba(163,107,255,0.4); background: rgba(163,107,255,0.06); }
+.chip-btn.violet:hover{ background: rgba(163,107,255,0.16); box-shadow: 0 0 10px rgba(163,107,255,0.3); }
+
+/* ==========================================================
+   OPTIONS GRILLE
+   ========================================================== */
+.opts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px 18px;
+}
+@media (max-width: 560px) { .opts-grid { grid-template-columns: 1fr; } }
+
+.opt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.opt label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.opt label .req { color: var(--red); }
+
+.opt input[type="number"],
+.opt select,
+.opt input[type="text"] {
+  width: 100%;
+  background: rgba(0,0,0,0.5);
+  color: var(--text);
+  border: 1px solid var(--panel-line);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+}
+.opt input:focus, .opt select:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(56,225,255,0.15);
+}
+
+.opt input[type="checkbox"] {
+  appearance: none;
+  width: 18px; height: 18px;
+  border: 1px solid var(--matrix);
+  background: rgba(0,0,0,0.5);
+  border-radius: 3px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+}
+.opt input[type="checkbox"]:checked {
+  background: var(--matrix);
+  box-shadow: 0 0 10px rgba(0,255,156,0.5);
+}
+.opt input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute; inset: 0;
+  text-align: center; line-height: 18px;
+  color: #001a12; font-weight: bold; font-size: 14px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  cursor: pointer;
+}
+.switch-row span.label {
+  font-size: 12px;
+  color: var(--text);
+  letter-spacing: 0.1em;
+}
+.switch-row span.hint {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+}
+
+/* Group box */
+.group {
+  border: 1px solid rgba(0,255,156,0.2);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-top: 12px;
+  background: rgba(0,0,0,0.25);
+}
+.group-legend {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--amber);
+  padding: 0 6px;
+  margin: -20px 0 8px 4px;
+  background: var(--bg-1);
+  display: inline-block;
+  text-shadow: 0 0 5px rgba(255,184,56,0.4);
+}
+
+/* ==========================================================
+   COMMAND OUTPUT TERMINAL
+   ========================================================== */
+.term {
+  margin-top: 10px;
+  background: #000d12;
+  border: 1px solid rgba(0,255,156,0.4);
+  border-radius: var(--radius);
+  padding: 10px 12px 12px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,255,156,0.15), inset 0 0 30px rgba(0, 20, 10, 0.5);
+}
+.term-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(0,255,156,0.25);
+}
+.term-dots { display: flex; gap: 6px; }
+.term-dots span { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.term-dots .d1 { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+.term-dots .d2 { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.term-dots .d3 { background: var(--matrix);box-shadow: 0 0 6px var(--matrix); }
+.term-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--matrix);
+  text-transform: uppercase;
+}
+.term-copy {
+  display: flex;
+  gap: 6px;
+}
+.icon-btn {
+  background: rgba(0,255,156,0.08);
+  border: 1px solid rgba(0,255,156,0.4);
+  color: var(--matrix);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.icon-btn:hover { background: rgba(0,255,156,0.2); box-shadow: 0 0 8px rgba(0,255,156,0.4); }
+.icon-btn.cyan   { color: var(--cyan);  border-color: rgba(56,225,255,0.4);  background: rgba(56,225,255,0.08); }
+.icon-btn.cyan:hover  { background: rgba(56,225,255,0.2);  box-shadow: 0 0 8px rgba(56,225,255,0.4); }
+.icon-btn.violet { color: var(--violet);border-color: rgba(163,107,255,0.4); background: rgba(163,107,255,0.08); }
+.icon-btn.violet:hover{ background: rgba(163,107,255,0.2); box-shadow: 0 0 8px rgba(163,107,255,0.4); }
+.icon-btn.amber  { color: var(--amber); border-color: rgba(255,184,56,0.4); background: rgba(255,184,56,0.08); }
+.icon-btn.amber:hover { background: rgba(255,184,56,0.2); box-shadow: 0 0 8px rgba(255,184,56,0.4); }
+
+.term-cmd {
+  margin: 0;
+  padding: 10px 12px;
+  background: #020b08;
+  color: var(--matrix);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 4px;
+  border-left: 3px solid var(--matrix);
+  max-height: 260px;
+  overflow: auto;
+  text-shadow: 0 0 5px rgba(0,255,156,0.35);
+}
+.term-cmd .prompt { color: var(--violet); }
+.term-cmd .comment { color: var(--text-dim); }
+.term-cmd .flag { color: var(--amber); }
+.term-cmd .val { color: var(--cyan); }
+
+/* Tabs terminal OS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.tab {
+  flex: 1;
+  padding: 7px 10px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--panel-line);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  text-align: center;
+  transition: all 0.2s;
+}
+.tab.active {
+  color: var(--matrix);
+  background: rgba(0,255,156,0.08);
+  border-color: var(--matrix);
+  box-shadow: inset 0 -2px 0 var(--matrix);
+}
+.tab:hover:not(.active) { color: var(--cyan); }
+
+/* ==========================================================
+   ACTIONS FOOTER
+   ========================================================== */
+.actions {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--matrix);
+  color: var(--matrix);
+  background: rgba(0,255,156,0.08);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: "";
+  position: absolute; top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,255,156,0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s;
+}
+.btn:hover::after { left: 130%; }
+.btn:hover {
+  background: rgba(0,255,156,0.18);
+  box-shadow: 0 0 16px rgba(0,255,156,0.45);
+  transform: translateY(-1px);
+}
+.btn.primary {
+  border-color: var(--cyan); color: var(--cyan);
+  background: rgba(56,225,255,0.08);
+}
+.btn.primary:hover { background: rgba(56,225,255,0.18); box-shadow: 0 0 16px rgba(56,225,255,0.45); }
+.btn.warn {
+  border-color: var(--amber); color: var(--amber);
+  background: rgba(255,184,56,0.08);
+}
+.btn.warn:hover { background: rgba(255,184,56,0.18); box-shadow: 0 0 16px rgba(255,184,56,0.45); }
+.btn.danger {
+  border-color: var(--red); color: var(--red);
+  background: rgba(255,76,106,0.08);
+}
+.btn.danger:hover { background: rgba(255,76,106,0.18); box-shadow: 0 0 16px rgba(255,76,106,0.45); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #02131b;
+  color: var(--matrix);
+  border: 1px solid var(--matrix);
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  box-shadow: 0 0 20px rgba(0,255,156,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  z-index: 99999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .ascii-logo { font-size: 10px; }
+  .btn { width: 100%; }
+}
+</style>
+</head>
+<body class="crt">
+
+<canvas id="matrix"></canvas>
+
+<!-- ============================================================== -->
+<!--                         HEADER / BANNER                        -->
+<!-- ============================================================== -->
+<header class="banner">
+
+  <!-- Démon DIAPILE SVG -->
+  <div class="diapile-logo">
+    <div class="demon-wrap">
+      <svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" class="demon-svg">
+        <!-- Halo de feu derrière -->
+        <ellipse cx="60" cy="80" rx="52" ry="48" fill="url(#halo)" opacity="0.35"/>
+        <!-- Corne gauche -->
+        <path d="M28 55 Q14 20 22 5 Q32 22 38 45 Z" fill="url(#fire1)"/>
+        <!-- Corne droite -->
+        <path d="M92 55 Q106 20 98 5 Q88 22 82 45 Z" fill="url(#fire1)"/>
+        <!-- Tête / visage -->
+        <ellipse cx="60" cy="82" rx="38" ry="36" fill="url(#face)"/>
+        <!-- Ombre du visage -->
+        <ellipse cx="60" cy="90" rx="32" ry="18" fill="rgba(40,10,0,0.4)"/>
+        <!-- Oeil gauche -->
+        <ellipse cx="45" cy="76" rx="6" ry="8" fill="#1a0500"/>
+        <ellipse cx="45" cy="74" rx="2.5" ry="3" fill="#ffb347" opacity="0.9"/>
+        <!-- Oeil droit -->
+        <ellipse cx="75" cy="76" rx="6" ry="8" fill="#1a0500"/>
+        <ellipse cx="75" cy="74" rx="2.5" ry="3" fill="#ffb347" opacity="0.9"/>
+        <!-- Nez triangulaire -->
+        <polygon points="60,84 56,92 64,92" fill="#3a1200" opacity="0.7"/>
+        <!-- Sourire -->
+        <path d="M47 100 Q60 110 73 100" stroke="#3a1200" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Gradient defs -->
+        <defs>
+          <radialGradient id="halo" cx="50%" cy="50%">
+            <stop offset="0%"   stop-color="#ff6b1a" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#ff3d00" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="fire1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#ffb347"/>
+            <stop offset="50%"  stop-color="#ff6b1a"/>
+            <stop offset="100%" stop-color="#cc2200"/>
+          </linearGradient>
+          <radialGradient id="face" cx="50%" cy="40%">
+            <stop offset="0%"   stop-color="#ff6b1a"/>
+            <stop offset="60%"  stop-color="#cc3300"/>
+            <stop offset="100%" stop-color="#7a1500"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Nom DIAPILE -->
+    <div class="diapile-name">
+      <span class="d-letter" style="color:#ff3d00">D</span><span
+            class="d-letter" style="color:#ff5500">I</span><span
+            class="d-letter" style="color:#ff6b1a">A</span><span
+            class="d-letter" style="color:#ff8c00">P</span><span
+            class="d-letter" style="color:#ffa500">I</span><span
+            class="d-letter" style="color:#ffb347">L</span><span
+            class="d-letter" style="color:#ffd700">E</span>
+    </div>
+    <div class="diapile-sub">AI-Powered Red Team Framework</div>
+  </div>
+
+  <div class="subtitle">
+    [<span style="color:var(--matrix)">SYS</span>]&nbsp; nrtg_v2.0.0 (diapile) &nbsp;·&nbsp;
+    [<span style="color:var(--cyan)">HUD</span>]&nbsp; network-redteam-grapher &nbsp;·&nbsp;
+    [<span style="color:var(--violet)">AUTH</span>]&nbsp; operational_use_authorized<span class="cursor"></span>
+  </div>
+  <div class="ticker">
+    <div class="ticker-track" id="ticker">
+      <span class="tag">[DIAPILE]</span> Red Team Framework — AI-Powered &amp; Autonomous
+      <span class="sep">║</span>
+      <span class="tag">[AGENT]</span> --ai-agent : campagne autonome via OpenRouter
+      <span class="sep">║</span>
+      <span class="ok">[OK]</span> CVE matcher + exploit orchestrator + kill-chain IA
+      <span class="sep">║</span>
+      <span class="tag">[AI]</span> compatible OpenAI / OpenRouter / Ollama
+      <span class="sep">║</span>
+      <span class="ok">[UP]</span> déploiement docker prêt · install.sh / install.ps1
+      <span class="sep">║</span>
+      <span class="tag">[WARN]</span> dry-run par défaut · utiliser --run-exploits pour actif
+      <span class="sep">║</span>
+      <span class="ok">[NEW]</span> --doctor · --update-cve-db · --parallel · CIDR natif
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================== -->
+<!--                         GRILLE PRINCIPALE                       -->
+<!-- ============================================================== -->
+<div class="launcher-grid">
+
+  <!-- ================ COLONNE GAUCHE : CIBLES + OPTIONS ================ -->
+  <div class="panel">
+    <div class="panel-title">
+      <h2>1 · TARGETS</h2>
+      <span class="chip" id="countChip">0 targets</span>
+    </div>
+
+    <textarea id="targets" class="targets-textarea" spellcheck="false"
+      placeholder="http://example.com:80
+https://api.example.com:443
+192.168.1.10:22
+10.0.0.5:6379
+10.0.0.5:3306
+# Lignes commençant par # ignorées"></textarea>
+
+    <div class="targets-hint">
+      Saisissez <b>1 cible par ligne</b> : <code>URL</code> ou <code>IP:PORT</code>.
+      Virgules/espaces acceptés. <b># = commentaire</b>.
+    </div>
+
+    <div class="presets">
+      <button class="chip-btn" data-preset="lab">🛰️ &nbsp; TARGET SIMULATION</button>
+      <button class="chip-btn amber" data-preset="http">🌐 WEB BASIC (http/https)</button>
+      <button class="chip-btn cyan" data-preset="db">🗄️ DATABASES (classiques)</button>
+      <button class="chip-btn violet" data-preset="full">🎯 FULL CLASSIQUE + VULNS</button>
+    </div>
+
+    <!-- === OPTIONS RAPIDES === -->
+    <div class="group">
+      <div class="group-legend">2 · OPÉRATIONS</div>
+      <div class="opts-grid" style="margin-top:6px">
+        <div class="opt">
+          <label>Timeout HTTP (sec)</label>
+          <input type="number" id="httpTimeout" min="1" max="300" value="8" />
+        </div>
+        <div class="opt">
+          <label>Timeout TCP (sec)</label>
+          <input type="number" id="tcpTimeout" min="1" max="300" value="5" />
+        </div>
+        <div class="opt">
+          <label>Exploit Depth</label>
+          <select id="depth">
+            <option value="light">LIGHT (rapide)</option>
+            <option value="medium" selected>MEDIUM (équilibré)</option>
+            <option value="deep">DEEP (complet)</option>
+          </select>
+        </div>
+        <div class="opt">
+          <label>Output Filename</label>
+          <input type="text" id="output" value="graph.json" />
+        </div>
+      </div>
+    </div>
+
+    <!-- === SWITCHES EXPORTS === -->
+    <div class="group">
+      <div class="group-legend">3 · EXPORTS</div>
+      <div>
+        <div class="switch-row">
+          <input type="checkbox" id="csv" checked />
+          <span class="label">Rapport CSV</span>
+          <span class="hint">--csv</span>
+        </div>
+        <div class="switch-row">
+          <input type="checkbox" id="md" checked />
+          <span class="label">Rapport Markdown</span>
+          <span class="hint">--md</span>
+        </div>
+        <div class="switch-row">
+          <input type="checkbox" id="apiReport" checked />
+          <span class="label">API JSON + HTML standalone</span>
+          <span class="hint">--export-api-report</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- === EXPLOIT ORCHESTRATOR === -->
+    <div class="group">
+      <div class="group-legend">4 · EXPLOIT ENGINE</div>
+      <div>
+        <div class="switch-row">
+          <input type="checkbox" id="runExploits" />
+          <span class="label">Activer les probes actifs ⚠️</span>
+          <span class="hint">par défaut: DRY-RUN</span>
+        </div>
+        <div class="switch-row">
+          <input type="checkbox" id="allowNet" />
+          <span class="label">Restreindre à des sous-réseaux</span>
+          <span class="hint">--allow-networks</span>
+        </div>
+        <div class="opt" id="netRow" style="display:none; margin-top:8px">
+          <label>Préfixes autorisés (séparés par virgule)</label>
+          <input type="text" id="allowNetworks" value="192.168.,10.0.,172." />
+        </div>
+      </div>
+    </div>
+
+    <!-- === BRUTEFORCE === -->
+    <div class="group">
+      <div class="group-legend">4b · BRUTEFORCE</div>
+      <div>
+        <div class="switch-row">
+          <input type="checkbox" id="bruteEnabled" />
+          <span class="label">Activer bruteforce de credentials ⚠️</span>
+          <span class="hint">--brute</span>
+        </div>
+        <div class="switch-row">
+          <input type="checkbox" id="scanLocal" />
+          <span class="label">Scanner la gateway locale (auto-detect)</span>
+          <span class="hint">--scan-local</span>
+        </div>
+      </div>
+      <div id="bruteOpts" style="display:none; margin-top:10px;">
+        <div class="opt">
+          <label>Mode bruteforce</label>
+          <select id="bruteMode">
+            <option value="quick">QUICK (35 paires, rapide)</option>
+            <option value="default" selected>DEFAULT (500 paires)</option>
+            <option value="stealth">STEALTH (100 paires, délai 2s)</option>
+          </select>
+        </div>
+        <div style="margin-top:8px; font-size:11px; color:var(--text-dim); letter-spacing:.08em; line-height:1.5;">
+          Services supportés : FTP · Redis · PostgreSQL · MySQL · MongoDB · HTTP Basic/Form
+        </div>
+      </div>
+    </div>
+
+    <!-- === IA === -->
+    <div class="group">
+      <div class="group-legend">5 · AI ENRICHMENT</div>
+      <div>
+        <div class="switch-row">
+          <input type="checkbox" id="aiEnabled" />
+          <span class="label">Générer rapport IA</span>
+          <span class="hint">--ai-report</span>
+        </div>
+      </div>
+      <div id="aiOpts" style="display:none; margin-top:10px">
+        <div class="opts-grid">
+          <div class="opt">
+            <label>Provider</label>
+            <select id="aiProvider">
+              <option value="openai">OpenAI</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="ollama">Ollama (local)</option>
+            </select>
+          </div>
+          <div class="opt">
+            <label>Model</label>
+            <input type="text" id="aiModel" value="mistralai/mistral-7b-instruct:free" />
+          </div>
+          <div class="opt">
+            <label>Top N cibles à analyser</label>
+            <input type="number" id="aiTargets" min="1" max="50" value="5" />
+          </div>
+          <div class="opt">
+            <label>Custom API base URL</label>
+            <input type="text" id="aiApiBase" placeholder="laisser vide pour provider par défaut" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ COLONNE DROITE : COMMANDES ================ -->
+  <div class="panel">
+    <div class="panel-title">
+      <h2>6 · EXECUTE / COMMAND</h2>
+      <span class="chip" id="runtimeChip">OS · AUTO</span>
+    </div>
+
+    <div class="tabs" id="osTabs">
+      <div class="tab active" data-os="docker">DOCKER (RECOMMANDÉ)</div>
+      <div class="tab" data-os="make">MAKEFILE</div>
+      <div class="tab" data-os="linux">LINUX · BASH</div>
+      <div class="tab" data-os="windows">WINDOWS · BATCH</div>
+    </div>
+
+    <div class="term">
+      <div class="term-head">
+        <div class="term-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+        <div class="term-title" id="termTitle">// nrtg @ docker</div>
+        <div class="term-copy">
+          <button class="icon-btn" id="copyBtn">📋 COPY</button>
+          <button class="icon-btn cyan" id="downloadBtn">⬇ SCRIPT</button>
+          <button class="icon-btn violet" id="resetBtn">↻ RESET</button>
+        </div>
+      </div>
+      <pre class="term-cmd" id="cmdOut"></pre>
+    </div>
+
+    <!-- === STATS RECAP === -->
+    <div class="group" style="margin-top:18px">
+      <div class="group-legend">MISSION STATUS</div>
+      <div class="opts-grid" style="margin-top:6px">
+        <div class="opt">
+          <label>Targets chargées</label>
+          <div id="stTargets" style="font-size:22px;color:var(--matrix);text-shadow:0 0 8px var(--matrix)">—</div>
+        </div>
+        <div class="opt">
+          <label>Exports actifs</label>
+          <div id="stExports" style="font-size:22px;color:var(--cyan);text-shadow:0 0 8px var(--cyan)">—</div>
+        </div>
+        <div class="opt">
+          <label>Risk engine</label>
+          <div style="font-size:18px;color:var(--amber);text-shadow:0 0 6px var(--amber)">ONLINE</div>
+        </div>
+        <div class="opt">
+          <label>Exploit mode</label>
+          <div id="stExploit" style="font-size:14px;color:var(--text-dim)">SAFE DRY-RUN</div>
+        </div>
+        <div class="opt">
+          <label>Bruteforce</label>
+          <div id="stBrute" style="font-size:14px;color:var(--text-dim)">DISABLED</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === ACTIONS === -->
+    <div class="actions">
+      <button class="btn primary" id="goDash">🖥️  OUVRIR DASHBOARD</button>
+      <button class="btn" id="goTargets">🎯  SCANNER LES CIBLES</button>
+      <button class="btn warn" id="goLab">🛰️  DÉMARRER LAB DOCKER</button>
+      <button class="btn danger" id="goDown">🛑  STOP STACK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================
+   MATRIX RAIN
+   ========================================================== */
+(() => {
+  const cvs = document.getElementById('matrix');
+  const ctx = cvs.getContext('2d');
+  let w, h, cols, drops, chars;
+  const GLYPHS = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ0123456789アカサタナハマヤラワXYZ';
+
+  function resize() {
+    w = cvs.width = window.innerWidth * devicePixelRatio;
+    h = cvs.height = window.innerHeight * devicePixelRatio;
+    cvs.style.width = window.innerWidth + 'px';
+    cvs.style.height = window.innerHeight + 'px';
+    const fs = 14 * devicePixelRatio;
+    cols = Math.floor(w / fs);
+    drops = new Array(cols).fill(0).map(() => Math.random() * -50);
+    chars = new Array(cols).fill(0).map(() => GLYPHS[(Math.random() * GLYPHS.length) | 0]);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(2, 3, 10, 0.08)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.font = (14 * devicePixelRatio) + "px 'Share Tech Mono', monospace";
+    for (let i = 0; i < cols; i++) {
+      const x = i * 14 * devicePixelRatio;
+      const y = drops[i] * 14 * devicePixelRatio;
+      // tête claire
+      ctx.fillStyle = '#b9ffe6';
+      ctx.fillText(chars[i], x, y);
+      // traînée matricée
+      ctx.fillStyle = 'rgba(0,255,156,0.85)';
+      for (let k = 1; k < 12; k++) {
+        ctx.globalAlpha = Math.max(0, 1 - k / 12);
+        const c = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+        ctx.fillText(c, x, y - k * 14 * devicePixelRatio);
+      }
+      ctx.globalAlpha = 1;
+      if (y > h && Math.random() > 0.975) { drops[i] = 0; chars[i] = GLYPHS[(Math.random()*GLYPHS.length)|0]; }
+      drops[i] += 0.55 + Math.random() * 0.55;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ==========================================================
+   LOGIQUE DE L'UI
+   ========================================================== */
+const $ = (id) => document.getElementById(id);
+const state = {
+  os: 'docker', // docker | make | linux | windows
+};
+
+const PRESETS = {
+  lab: [
+    "http://localhost:8080",
+    "127.0.0.1:6379",
+    "127.0.0.1:2222",
+    "127.0.0.1:1025",
+    "127.0.0.1:21",
+  ],
+  http: [
+    "http://example.com:80",
+    "https://example.com:443",
+    "http://dev.local:3000",
+    "http://dev.local:8080",
+  ],
+  db: [
+    "127.0.0.1:3306",
+    "127.0.0.1:5432",
+    "127.0.0.1:27017",
+    "127.0.0.1:6379",
+    "127.0.0.1:1433",
+  ],
+  full: [
+    "# Simulation d'infrastructure cible (docker compose up)",
+    "http://localhost:8080",
+    "127.0.0.1:6379",
+    "127.0.0.1:2222",
+    "127.0.0.1:1025",
+    "127.0.0.1:21",
+    "# Services web classique",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "# BDD",
+    "127.0.0.1:3306",
+    "127.0.0.1:5432",
+    "127.0.0.1:27017",
+    "127.0.0.1:6379",
+    "127.0.0.1:1433",
+    "# DNS / AD",
+    "127.0.0.1:53",
+  ]
+};
+
+function parseTargets() {
+  return $("targets").value
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(s => s && !s.startsWith('#'));
+}
+function quoteSh(s) { return `"${s.replace(/"/g, '\\"')}"`; }
+function quoteWin(s){ return `"${s.replace(/"/g, '""')}"`; }
+
+/* ---------- Génération des commandes ---------- */
+function buildBaseArgs() {
+  const T = parseTargets();
+  const targets = T.join(",");
+  const args = [];
+  if (targets) args.push({ f: "--targets", v: targets });
+  args.push({ f: "--http-timeout",  v: String($("httpTimeout").value) });
+  args.push({ f: "--tcp-timeout",   v: String($("tcpTimeout").value)  });
+  args.push({ f: "--exploit-depth", v: $("depth").value });
+  if ($("output").value.trim()) args.push({ f: "--output", v: $("output").value.trim() });
+  if ($("csv").checked)       args.push({ f: "--csv", raw: true });
+  if ($("md").checked)        args.push({ f: "--md",  raw: true });
+  if ($("apiReport").checked) args.push({ f: "--export-api-report", raw: true });
+  if ($("runExploits").checked) args.push({ f: "--run-exploits", raw: true });
+  if ($("allowNet").checked && $("allowNetworks").value.trim()) {
+    args.push({ f: "--allow-networks", v: $("allowNetworks").value.trim() });
+  }
+  if ($("bruteEnabled").checked) {
+    args.push({ f: "--brute", raw: true });
+    args.push({ f: "--yes", raw: true });   // confirmation auto dans le script
+    const bm = $("bruteMode")?.value ?? "quick";
+    if (bm !== "quick") args.push({ f: "--brute-mode", v: bm });
+  }
+  if ($("scanLocal").checked) args.push({ f: "--scan-local", raw: true });
+  if ($("aiEnabled").checked) {
+    args.push({ f: "--ai-report", raw: true });
+    args.push({ f: "--ai-targets",    v: String($("aiTargets").value) });
+    args.push({ f: "--llm-provider",  v: $("aiProvider").value });
+    const model = $("aiModel").value.trim();
+    if (model) args.push({ f: "--llm-model", v: model });
+    const base = $("aiApiBase").value.trim();
+    if (base)  args.push({ f: "--llm-api-base", v: base });
+  }
+  return args;
+}
+
+function renderCmdSh(args, prefix, prompt="user@kali:~$ ") {
+  const argStr = args.map(a => a.raw ? a.f : `${a.f} ${quoteSh(a.v)}`).join(" \\\n    ");
+  const lines = [
+    `<span class="comment"># =========================================================</span>`,
+    `<span class="comment"># Network Redteam Grapher — Mission Launcher</span>`,
+    `<span class="comment"># Généré le ${new Date().toLocaleString()}</span>`,
+    `<span class="comment"># =========================================================</span>`,
+    ``,
+    `<span class="prompt">${prompt}</span>${prefix} ${argStr}`,
+  ];
+  return lines.join("\n");
+}
+function renderCmdWin(args, prefix, prompt="C:\\HACKIST>") {
+  const argStr = args.map(a => a.raw ? a.f : `${a.f} ${quoteWin(a.v)}`).join(" ^\n    ");
+  const lines = [
+    `<span class="comment">@echo off</span>`,
+    `<span class="comment">REM =========================================================</span>`,
+    `<span class="comment">REM Network Redteam Grapher — mission générée automatiquement</span>`,
+    `<span class="comment">REM =========================================================</span>`,
+    ``,
+    `<span class="prompt">${prompt}</span>${prefix} ${argStr}`,
+  ];
+  return lines.join("\n");
+}
+
+function buildCmd() {
+  const args = buildBaseArgs();
+  const hasAi = $("aiEnabled").checked;
+  let html = "", title = "", runtime = "";
+
+  switch (state.os) {
+    case "docker": {
+      runtime = "DOCKER";
+      title = "// nrtg @ docker (zero install)";
+      const envPass = hasAi
+        ? ($("aiProvider").value === "ollama" ? "" : `-e OPENAI_API_KEY=%OPENAI_API_KEY% `).replace(/%/g, processIsWin() ? "%" : "$")
+        : "";
+      // On passe NRTG_TARGETS via -e (override entrypoint var) => syntaxe UNIX
+      const targets = parseTargets().join(",");
+      const dockerRunArgs = [];
+      if (targets) dockerRunArgs.push(`-e NRTG_TARGETS=${quoteSh(targets)}`);
+      if (hasAi) {
+        if ($("aiProvider").value !== "ollama") {
+          if ($("aiProvider").value === "openrouter") dockerRunArgs.push(`-e OPENROUTER_API_KEY=\${OPENROUTER_API_KEY:-}`);
+          else dockerRunArgs.push(`-e OPENAI_API_KEY=\${OPENAI_API_KEY:-}`);
+        } else {
+          dockerRunArgs.push(`--add-host host.docker.internal:host-gateway`);
+        }
+      }
+      // Options supplémentaires passées au conteneur après 'nrtg'
+      const extra = args.filter(a => !a.f.startsWith("--targets")).map(a => a.raw ? a.f : `${a.f} ${quoteSh(a.v)}`).join(" ");
+      const prefix = `docker compose run --rm ${dockerRunArgs.join(" ")} nrtg`;
+      html = [
+        `<span class="comment"># 0) OPTIONNEL — démarrer lab vulnérable</span>`,
+        `<span class="prompt">user@kali:~$ </span>docker compose up -d`,
+        ``,
+        `<span class="comment"># 1) Scanner (build automatique 1ère fois)</span>`,
+        `<span class="prompt">user@kali:~$ </span>${prefix}${extra ? " " + extra : ""}`,
+        ``,
+        `<span class="comment"># 2) Ouvrir le graphe cyber HUD</span>`,
+        `<span class="prompt">user@kali:~$ </span>xdg-open dashboard.html    <span class="comment"># (ou open sur macOS)</span>`,
+      ].join("\n");
+      break;
+    }
+    case "make": {
+      runtime = "MAKEFILE";
+      title = "// nrtg @ make";
+      const T = parseTargets().join(",");
+      const mk = [];
+      mk.push(`<span class="comment"># Lab Docker si besoin</span>`);
+      mk.push(`<span class="prompt">user@kali:~$ </span>make up`);
+      mk.push(``);
+      if (hasAi) {
+        mk.push(`<span class="comment"># Scan + rapport IA</span>`);
+        mk.push(`<span class="prompt">user@kali:~$ </span>make scan-ai ${T ? `TARGETS=${quoteSh(T)}` : ""}`);
+      } else {
+        mk.push(`<span class="comment"># Scan standard</span>`);
+        mk.push(`<span class="prompt">user@kali:~$ </span>make scan ${T ? `TARGETS=${quoteSh(T)}` : ""}`);
+      }
+      mk.push(``);
+      mk.push(`<span class="comment"># Dashboard</span>`);
+      mk.push(`<span class="prompt">user@kali:~$ </span>make dash`);
+      html = mk.join("\n");
+      break;
+    }
+    case "linux": {
+      runtime = "LINUX / BASH";
+      title = "// nrtg @ bash (cargo build --release préalable)";
+      html = renderCmdSh(args, "./target/release/nrtg", "user@kali:~$ ");
+      html += `\n\n<span class="comment"># Si Rust non installé → utiliser mode DOCKER</span>`;
+      break;
+    }
+    case "windows": {
+      runtime = "WINDOWS / BATCH";
+      title = "// nrtg @ cmd.exe";
+      html = renderCmdWin(args, ".\\target\\release\\nrtg.exe", "C:\\HACKIST>");
+      html += `\n\n<span class="comment">REM  · raccourci : run.bat</span>`;
+      break;
+    }
+  }
+
+  $("cmdOut").innerHTML = html;
+  $("termTitle").textContent = title;
+  $("runtimeChip").textContent = "OS · " + runtime;
+}
+
+function processIsWin(){ return navigator.userAgent.includes("Windows"); }
+
+/* ---------- Mise à jour stats ---------- */
+function updateStats() {
+  const n = parseTargets().length;
+  $("countChip").textContent = n + " target" + (n>1?"s":"");
+  $("stTargets").textContent = n;
+  const exps = [$("csv"), $("md"), $("apiReport")].filter(x=>x.checked).length;
+  $("stExports").textContent = exps;
+  $("stExploit").textContent = $("runExploits").checked ? "⚠️ ACTIVE PROBES" : "SAFE DRY-RUN";
+  $("stExploit").style.color = $("runExploits").checked ? "var(--red)" : "var(--matrix-dim)";
+  if ($("stBrute")) {
+    const bEnabled = $("bruteEnabled").checked;
+    const bMode = $("bruteMode")?.value ?? "quick";
+    $("stBrute").textContent = bEnabled ? `⚠️ ${bMode.toUpperCase()}` : "DISABLED";
+    $("stBrute").style.color = bEnabled ? "var(--amber)" : "var(--text-dim)";
+  }
+}
+
+/* ---------- Tabs OS ---------- */
+document.querySelectorAll("#osTabs .tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll("#osTabs .tab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    state.os = t.dataset.os;
+    buildCmd();
+  });
+});
+
+/* ---------- Presets targets ---------- */
+document.querySelectorAll(".presets .chip-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const list = PRESETS[btn.dataset.preset];
+    if (!list) return;
+    $("targets").value = list.join("\n");
+    toast(`Preset [${btn.dataset.preset.toUpperCase()}] chargé · ${list.length} lignes`);
+    fire();
+  });
+});
+
+/* ---------- Switches dynamiques ---------- */
+$("allowNet").addEventListener("change", e => {
+  $("netRow").style.display = e.target.checked ? "" : "none";
+  fire();
+});
+$("bruteEnabled").addEventListener("change", e => {
+  $("bruteOpts").style.display = e.target.checked ? "" : "none";
+  fire();
+});
+$("aiEnabled").addEventListener("change", e => {
+  $("aiOpts").style.display = e.target.checked ? "" : "none";
+  fire();
+});
+
+/* ---------- Copier ---------- */
+$("copyBtn").addEventListener("click", async () => {
+  const text = $("cmdOut").innerText;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast("✓ Commande copiée dans le presse-papier");
+  } catch {
+    const r = document.createRange(); r.selectNode($("cmdOut"));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(r);
+    document.execCommand("copy");
+    toast("✓ Commande copiée");
+  }
+});
+
+/* ---------- Télécharger script ---------- */
+$("downloadBtn").addEventListener("click", () => {
+  const text = $("cmdOut").innerText;
+  const map = {
+    docker: ["run_mission.sh", "#!/usr/bin/env bash\nset -euo pipefail\n\n" + text + "\n"],
+    make: ["run_mission.sh", "#!/usr/bin/env bash\nset -euo pipefail\n\n" + text + "\n"],
+    linux: ["run_mission.sh", "#!/usr/bin/env bash\nset -euo pipefail\n\n" + text + "\n"],
+    windows: ["run_mission.bat", "@echo off\r\nsetlocal\r\n" + text.replace(/\n/g,"\r\n") + "\r\nendlocal\r\n"],
+  };
+  const [name, content] = map[state.os];
+  // Nettoyage des prompt pour le script réel
+  const pure = content.replace(/^user@kali:~\$ /gm, "").replace(/^C:\\HACKIST>/gm, "");
+  const blob = new Blob([pure], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast(`✓ Téléchargé : ${name}`);
+});
+
+/* ---------- Reset ---------- */
+$("resetBtn").addEventListener("click", () => {
+  $("targets").value = "";
+  $("httpTimeout").value = 8; $("tcpTimeout").value = 5;
+  $("depth").value = "medium"; $("output").value = "graph.json";
+  $("csv").checked = true; $("md").checked = true; $("apiReport").checked = true;
+  $("runExploits").checked = false; $("allowNet").checked = false;
+  $("netRow").style.display = "none";
+  // Brute reset
+  if ($("bruteEnabled"))   { $("bruteEnabled").checked = false; }
+  if ($("bruteOpts"))      { $("bruteOpts").style.display = "none"; }
+  if ($("bruteMode"))      { $("bruteMode").value = "default"; }
+  if ($("scanLocal"))      { $("scanLocal").checked = false; }
+  // AI reset
+  $("aiEnabled").checked = false; $("aiOpts").style.display = "none";
+  $("aiTargets").value = 5;
+  $("aiProvider").value = "openrouter";
+  $("aiModel").value = "mistralai/mistral-7b-instruct:free";
+  $("aiApiBase").value = "";
+  fire();
+  toast("↻ Reset effectué");
+});
+
+/* ---------- Actions boutons ---------- */
+$("goDash").addEventListener("click", () => {
+  window.open("dashboard.html", "_blank");
+});
+$("goTargets").addEventListener("click", () => {
+  const t = parseTargets();
+  if (!t.length) { toast("⚠️  Aucune cible définie"); $("targets").focus(); return; }
+  toast(`🎯 Prêt à scanner ${t.length} cible(s). Commande copiée.`);
+  $("copyBtn").click();
+});
+$("goLab").addEventListener("click", async () => {
+  const cmd = "docker compose up -d";
+  try { await navigator.clipboard.writeText(cmd);
+    toast("🛰️  Commande LAB copiée : " + cmd);
+  } catch { toast("Lancez : docker compose up -d"); }
+});
+$("goDown").addEventListener("click", async () => {
+  const cmd = "docker compose down";
+  try { await navigator.clipboard.writeText(cmd);
+    toast("🛑 Commande STOP copiée");
+  } catch { toast("Lancez : docker compose down"); }
+});
+
+/* ---------- Écoute globale ---------- */
+function fire() { updateStats(); buildCmd(); }
+const fireInputs = [
+  "targets","httpTimeout","tcpTimeout","depth","output",
+  "csv","md","apiReport","runExploits","allowNetworks","allowNet",
+  "bruteEnabled","bruteMode","scanLocal",
+  "aiEnabled","aiProvider","aiModel","aiTargets","aiApiBase"
+];
+$("aiProvider").addEventListener("change", function() {
+  const models = {
+    openai:      "gpt-4o-mini",
+    openrouter:  "mistralai/mistral-7b-instruct:free",
+    ollama:      "mistral"
+  };
+  $("aiModel").value = models[this.value] ?? "mistral";
+  fire();
+});
+fireInputs.forEach(id => {
+  const el = $(id);
+  if (!el) return;
+  const evt = el.tagName === "SELECT" || el.type === "checkbox" || el.type === "number" ? "change" : "input";
+  el.addEventListener(evt, fire);
+});
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+/* ---------- Boot ---------- */
+window.addEventListener("DOMContentLoaded", () => {
+  $("targets").value = [
+    "# Définissez vos cibles ci-dessous (1 par ligne).",
+    "# Par défaut : LAB DOCKER (appuyez sur 🛰️ PRESET LAB)",
+    "",
+    "http://localhost:8080",
+    "127.0.0.1:6379",
+    "127.0.0.1:2222",
+  ].join("\n");
+  fire();
+});
+</script>
+</body>
+</html>
