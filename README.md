@@ -284,7 +284,7 @@ nrtg --ai-agent --autonomous --targets 10.0.0.0/24 \
 
 ### Modèles LLM — état 2026
 
-> ⚠️ **OpenRouter** : tous les modèles `:free` ont été **retirés** (réponse HTTP 404). Utiliser un modèle payant OpenRouter, un endpoint OpenAI-compatible, ou **Ollama en local** (gratuit, aucune clé).
+> Utiliser un modèle payant OpenRouter, un endpoint OpenAI-compatible, ou **Ollama en local** (gratuit, aucune clé).
 
 | Option | Coût | Recommandé pour |
 |---|---|---|
